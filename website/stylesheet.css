@@ -1,0 +1,15 @@
+.container{
+    overflow: false;
+    width: 50%;
+    height: auto;
+}
+
+.mapster_el{
+    opacity: 0.5!important;
+}
+
+.zone-overlay {
+    position: absolute;
+    background-color: rgba(255, 0, 0, 0); /* Semi-transparent red */
+    pointer-events: none; /* Allows clicking through the overlay */
+  }
