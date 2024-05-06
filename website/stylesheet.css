@@ -1,11 +1,13 @@
-.container{
-    overflow: false;
+.floorplan-container{
+    overflow: false!important;
     width: 50%;
     height: auto;
+    position: relative;
 }
 
 .mapster_el{
     opacity: 0.5!important;
+    position: absolute!important;   
 }
 
 .zone-overlay {
@@ -13,3 +15,16 @@
     background-color: rgba(255, 0, 0, 0); /* Semi-transparent red */
     pointer-events: none; /* Allows clicking through the overlay */
   }
+
+#mapster_wrap_0{
+    position: absolute!important;
+    z-index: 5;
+}
+
+.shade{
+    z-index: 1;
+    position: relative;
+    width: 30px;
+    height: 50px;
+    background-color: red;
+}
