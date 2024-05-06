@@ -164,6 +164,7 @@
       });
       var newImage;
       $(".cr-slider").attr({ min: 0.5, max: 4.0 });
+
       function bind() {
         vanilla
           .result({
@@ -174,6 +175,12 @@
             newImage = croppedImage;
           });
       }
+
+      function convertTojpg() {
+        var fromdata = new FormData();
+        formdata("file", file);
+      }
+
       function uploadImage() {
         try {
           var fileInput = document.getElementById("fileInput");
@@ -182,6 +189,22 @@
 
           reader.onload = function (event) {
             var imageSrc = event.target.result;
+
+            var formData = new FormData();
+            formData.append("file", file);
+
+            fetch("/upload", {
+              method: "POST",
+              body: formData,
+            }).then((response) => {
+              if (response.ok) {
+                // Handle success response
+                console.log("File uploaded successfully!");
+              } else {
+                // Handle error response
+                console.error("Failed to upload file:", response.statusText);
+              }
+            });
 
             vanilla.bind({
               url: imageSrc,
