@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf_viewer.min.css"
+      integrity="sha512-kQO2X6Ls8Fs1i/pPQaRWkT40U/SELsldCgg4njL8zT0q4AfABNuS+xuy+69PFT21dow9T6OiJF43jan67GX+Kw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf_viewer.min.css"
+      integrity="sha512-kQO2X6Ls8Fs1i/pPQaRWkT40U/SELsldCgg4njL8zT0q4AfABNuS+xuy+69PFT21dow9T6OiJF43jan67GX+Kw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.js"
+      integrity="sha512-dfMpvQclalfL7nRtHdy4+U2GLYb2XJJOgGLgKibrbcbarI/ZLgCAaBCS6+AuWN0OtLn/zFpu+Cggd8TCBYx9Ag=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <title>pdftojpg</title>
+  </head>
+  <body>
+    <input type="file" accept=".pdf" id="fileInput" />
+    <input type="number" step="1" id="pageNumber" />
+    <button onclick="uploadPagenumber()">upload</button>
+    <script>
+      function uploadPagenumber() {
+        numberInput = document.getElementById("pageNumber");
+        let pageNumber = numberInput.value;
+        var fileInput = document.getElementById("fileInput");
+        var file = fileInput.files[0];
+        var url = URL.createObjectURL(file);
+        console.log(pageNumber);
+        renderPdfPageToBlob(url, pageNumber);
+      }
+      function renderPdfPageToBlob(pdfFile, pageNumber) {
+        // PDF.js loading task
+        const loadingTask = pdfjsLib.getDocument(pdfFile);
+
+        // Return a promise that resolves with the Blob representing the rendered page
+        return loadingTask.promise.then(function (pdf) {
+          // Get the selected page
+          return pdf.getPage(1).then(function (page) {
+            // Set up canvas element to render the page
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+
+            // Set desired scale for rendering
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale });
+
+            // Set canvas dimensions based on viewport
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            // Render PDF page to canvas
+            const renderContext = {
+              canvasContext: context,
+              viewport: viewport,
+            };
+            return page.render(renderContext).promise.then(function () {
+              // Convert canvas to Blob (image)
+              return new Promise((resolve) => {
+                canvas.toBlob(resolve);
+              });
+            });
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
