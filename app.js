@@ -15,7 +15,11 @@ app.get('/', (req, res) => {
     res.render('converter')
 })
 
-app.post('/upload', (req, res) => {
+app.get('/floorplan', (req, res) => {
+    res.render('Floorplan')
+})
+
+app.post('/submit', (req, res) => {
     console.log('upload read', req.body)
 })
 
