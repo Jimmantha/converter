@@ -35,6 +35,13 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
+      integrity="sha512-q+4liFwdPC/bNdhUpZx6aXDx/h77yEQtn4I1slHydcbZK34nLaR3cAeYSJshoxIOq3mjEf7xJE8YWIUHMn+oCQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <link href="./stylesheet.css" rel="stylesheet" />
   </head>
 
@@ -72,13 +79,13 @@
           <div class="modal-body">
             <div>
               <div class="flex">
-                <input
-                  type="file"
-                  id="fileInput"
-                  accept=".JPG"
-                  onchange="uploadImage()"
-                />
-                <img src="#" alt="upload Image" id="picture" />
+                <input type="file" id="fileInput" accept=".pdf" />
+                Page Number:
+                <input type="number" id="pageNumber" />
+                <div class="justify-content-end">
+                  <button id="upload">Upload</button>
+                </div>
+                <img src="#" class="mt-3" alt="upload Image" id="picture" />
               </div>
             </div>
           </div>
@@ -185,6 +192,7 @@
       crossorigin="anonymous"
     ></script>
     <script>
+      var imageData;
       function reinitializeMapster() {
         $("img").mapster(
           (options = {
@@ -210,7 +218,7 @@
       function cropImage() {
         vanilla
           .result({
-            type: "canvas", // Use canvas for better quality
+            type: "blob", // Use canvas for better quality
             size: "viewport", // Use original size of the cropped image
           })
           .then(function (croppedImage) {
@@ -218,47 +226,70 @@
           });
       }
 
+      $("#upload").click(function () {
+        console.log("uploading");
+        convertTojpg();
+      });
+
       function convertTojpg() {
-        var fromdata = new FormData();
-        formdata("file", file);
-        //need create
+        var fileInput = document.getElementById("fileInput");
+        var pageNumberInput = document.getElementById("pageNumber");
+        var pageNumber = parseInt(pageNumberInput.value);
+        var file = fileInput.files[0];
+
+        var url = URL.createObjectURL(file);
+        var pdf = new pdfjsLib.getDocument(url);
+        pdf.promise.then(function (pdf) {
+          console.log("Number of pages: " + pdf.numPages);
+
+          pdf.getPage(pageNumber).then(function (page) {
+            var viewport = page.getViewport({ scale: 1 });
+            var canvas = document.createElement("canvas");
+            var context = canvas.getContext("2d");
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            var renderContext = {
+              canvasContext: context,
+              viewport: viewport,
+            };
+            var renderTask = page.render(renderContext);
+
+            renderTask.promise.then(function () {
+              var imageData = canvas.toDataURL("image/jpeg");
+              // Use the imageData as needed
+              console.log(imageData);
+              uploadImage(imageData);
+            });
+          });
+        });
       }
 
-      function uploadImage() {
+      function uploadImage(imageData) {
         try {
-          var fileInput = document.getElementById("fileInput");
-          var file = fileInput.files[0];
-          var reader = new FileReader();
+          var imageBase64 = imageData; //image data base 64
+          imageView = document.getElementById("picture");
+          picture.setAttribute("src", imageBase64);
+          reinitializeMapster();
 
-          reader.onload = function (event) {
-            var imageSrc = event.target.result;
-            var canvas = document.getElementById("shadecanvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-            var formData = new FormData();
-            formData.append("file", file);
+          vanilla.bind({
+            url: imageBase64,
+          });
+          $("#exampleModal").off("hidden.bs.modal");
+          $("#exampleModal").on("hidden.bs.modal", function () {
+            var url = URL.createObjectURL(newImage);
+            document.getElementById("new-floorplan").src = url;
 
-            vanilla.bind({
-              url: imageSrc,
-            });
-
-            //display new image when modal closes
-            $("#exampleModal").on("hidden.bs.modal", function () {
-              var url = URL.createObjectURL(newImage);
-              document.getElementById("new-floorplan").src = url;
-              b64 = newImage;
-              zones = { floorplan: reader.result };
-
-              // Reinitialize ImageMapster after the new image is loaded
-              reinitializeMapster();
-            });
-          };
-
-          reader.readAsDataURL(file);
-        } catch (error) {
-          alert("Image type wrong or no image selected");
-          document.getElementById("picture").src = "#";
-        }
+            var reader = new FileReader();
+            reader.onload = function () {
+              var b64 = reader.result;
+              console.log(b64);
+              zones = { floorplan: b64 };
+            };
+            reader.readAsDataURL(newImage);
+            reinitializeMapster();
+          });
+        } catch (error) {}
         console.log(newImage);
       }
     </script>

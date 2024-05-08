@@ -10,7 +10,6 @@ app.use(express.static(path.join(__dirname, 'website')));
 app.set('view engine', 'ejs');
 
 app.use(bodyparser.json())
-
 app.get('/', (req, res) => {
     res.render('converter')
 })
