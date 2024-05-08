@@ -90,6 +90,16 @@
             </div>
           </div>
           <div class="modal-footer">
+            <div class="hstack">
+              <div class="hstack gap-3">
+                <button class="btn btn-warning" id="rotateLeft">
+                  rotate left
+                </button>
+                <button id="rotateRight" class="btn btn-warning">
+                  rotate Right
+                </button>
+              </div>
+            </div>
             <button
               type="button"
               class="btn btn-secondary"
@@ -104,7 +114,7 @@
     </div>
     <div class="table">
       <div class="row">
-        <div class="col-7">
+        <div class="col-6">
           <div>
             <div class="col-6 ms-5 mt-5">
               <img
@@ -182,7 +192,18 @@
             <map name="imagemap" id="map" class="opacity"> </map>
           </div>
         </div>
-        <div class="col-6"></div>
+        <div class="col-5">
+          <table class="table m-5" id="mytable">
+            <thead>
+              <tr>
+                <th>Sensor ID</th>
+                <th>sensor type</th>
+                <th>Graph type</th>
+                <th>Category</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -225,7 +246,12 @@
             newImage = croppedImage;
           });
       }
-
+      $("#rotateLeft").click(function () {
+        vanilla.rotate(-90);
+      });
+      $("#rotateRight").click(function () {
+        vanilla.rotate(90);
+      });
       $("#upload").click(function () {
         console.log("uploading");
         convertTojpg();
@@ -277,6 +303,7 @@
           });
           $("#exampleModal").off("hidden.bs.modal");
           $("#exampleModal").on("hidden.bs.modal", function () {
+            zones = {};
             var url = URL.createObjectURL(newImage);
             document.getElementById("new-floorplan").src = url;
 
@@ -307,7 +334,6 @@
       });
       $("input[name='zone']").on("change", function () {
         selectedZone = $("input[name='zone']:checked").val();
-        console.log(selectedZone); // Output the selected value to the console
       });
       function getCoordinates(event) {
         var imgRect = img.getBoundingClientRect();
@@ -343,6 +369,7 @@
       }
       $(document).ready(function () {
         $("#update").click(function () {
+          run();
           console.log(zones);
           var imagemap = document.getElementById("map");
           var floorplanWrap = document.getElementById("shadecanvas");
@@ -459,6 +486,56 @@
 
       reinitializeMapster();
     </script>
-    <script></script>
+    <script>
+      function run() {
+        var zonedatas = {
+          Zone1: {
+            sensor1: {
+              sensorID: 1,
+              sensorType: "temperature",
+              graphType: "line",
+              category: "temperature",
+            },
+            sensor2: {
+              sensorID: 2,
+              sensorType: "humidity",
+              graphType: "line",
+              category: "humidity",
+            },
+          },
+          Zone2: {
+            sensor1: {
+              sensorID: 3,
+              sensorType: "temperature",
+              graphType: "line",
+              category: "temperature",
+            },
+            sensor2: {
+              sensorID: 4,
+              sensorType: "humidity",
+              graphType: "line",
+              category: "humidity",
+            },
+          },
+          Zone3: {
+            sensor1: {
+              sensorID: 5,
+              sensorType: "temperature",
+              graphType: "line",
+              category: "temperature",
+            },
+          },
+        };
+        selectedZone = $("input[name='zone']:checked").val();
+
+        for (var zone in zonedatas) {
+          if (zone == selectedZone) {
+            console.log("selected zone is", zone);
+            var datas = zonedatas[zone];
+          }
+        }
+        console.log(datas);
+      }
+    </script>
   </body>
 </html>
