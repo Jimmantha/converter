@@ -81,7 +81,11 @@
               <div class="flex">
                 <input type="file" id="fileInput" accept=".pdf" />
                 Page Number:
-                <input type="number" id="pageNumber" />
+                <input
+                  type="number"
+                  id="pageNumber"
+                  onchange="convertTojpg()"
+                />
                 <div class="justify-content-end">
                   <button id="upload">Upload</button>
                 </div>
@@ -196,13 +200,14 @@
           <table class="table m-5" id="mytable">
             <thead>
               <tr>
-                <th>Sensor ID</th>
-                <th>sensor type</th>
-                <th>Graph type</th>
-                <th>Category</th>
+                <th style="background-color: #ffcc00 !important">ID</th>
+                <th style="background-color: #ffcc00 !important">Type</th>
+                <th style="background-color: #ffcc00 !important">Graph type</th>
+                <th style="background-color: #ffcc00 !important">Category</th>
               </tr>
             </thead>
           </table>
+          <button onclick="updateVar()">Table update</button>
         </div>
       </div>
     </div>
@@ -213,6 +218,7 @@
       crossorigin="anonymous"
     ></script>
     <script>
+      var zonelist;
       var imageData;
       function reinitializeMapster() {
         $("img").mapster(
@@ -220,6 +226,15 @@
             stroke: true,
             fillColor: "222222",
             fillOpacity: 0.3,
+            singleSelect: true,
+            onClick: function (e) {
+              $("input[name='zone']").prop("checked", false);
+              $("input[name='zone'][value='" + zonelist[e.key] + "']").prop(
+                "checked",
+                true
+              );
+              run(zonelist[e.key]);
+            },
           })
         );
         $("#mapster_el").css("opacity", "0.5");
@@ -369,82 +384,86 @@
       }
       $(document).ready(function () {
         $("#update").click(function () {
-          run();
           console.log(zones);
           var imagemap = document.getElementById("map");
           var floorplanWrap = document.getElementById("shadecanvas");
           var ctx = floorplanWrap.getContext("2d");
           ctx.clearRect(0, 0, floorplanWrap.width, floorplanWrap.height);
           floorplanWrap.innerHTML = ""; // Clear any existing content
+          zonelist = [];
           for (var zone in zones) {
-            var zonePosition = zones[zone];
-            ctx.beginPath(); // Start a new path
-            ctx.fillStyle = "red";
-            ctx.imageSmoothingEnabled = false;
-            ctx.strokeStyle = "black"; // Set the color of the border
-            ctx.lineWidth = 3;
-            if (
-              zonePosition.startX !== undefined &&
-              zonePosition.startY !== undefined &&
-              zonePosition.endX !== undefined &&
-              zonePosition.endY !== undefined
-            ) {
-              var startX = (zonePosition.startX / 600) * floorplanWrap.width; // Assuming canvas width is 600
-              var startY = (zonePosition.startY / 400) * floorplanWrap.height; // Assuming canvas height is 400
-              var endX = (zonePosition.endX / 600) * floorplanWrap.width; // Assuming canvas width is 600
-              var endY = (zonePosition.endY / 400) * floorplanWrap.height; // Assuming canvas height is 400
-              if (endX > startX) {
-                var width = Math.abs(endX - startX);
-                if (endY > startY) {
-                  var height = Math.abs(endY - startY);
-                  ctx.rect(startX, startY, width, height);
+            if (zone.startsWith("Zone")) {
+              var zonePosition = zones[zone];
+              ctx.beginPath(); // Start a new path
+              ctx.fillStyle = "red";
+              ctx.imageSmoothingEnabled = false;
+              ctx.strokeStyle = "black"; // Set the color of the border
+              ctx.lineWidth = 3;
+              if (
+                zonePosition.startX !== undefined &&
+                zonePosition.startY !== undefined &&
+                zonePosition.endX !== undefined &&
+                zonePosition.endY !== undefined
+              ) {
+                var startX = (zonePosition.startX / 600) * floorplanWrap.width; // Assuming canvas width is 600
+                var startY = (zonePosition.startY / 400) * floorplanWrap.height; // Assuming canvas height is 400
+                var endX = (zonePosition.endX / 600) * floorplanWrap.width; // Assuming canvas width is 600
+                var endY = (zonePosition.endY / 400) * floorplanWrap.height; // Assuming canvas height is 400
+                if (endX > startX) {
+                  var width = Math.abs(endX - startX);
+                  if (endY > startY) {
+                    var height = Math.abs(endY - startY);
+                    ctx.rect(startX, startY, width, height);
+                  } else {
+                    var height = Math.abs(startY - endY);
+                    ctx.rect(startX, endY, width, height);
+                  }
                 } else {
-                  var height = Math.abs(startY - endY);
-                  ctx.rect(startX, endY, width, height);
+                  var width = Math.abs(startX - endX);
+                  if (endY > startY) {
+                    var height = Math.abs(endY - startY);
+                    ctx.rect(endX, startY, width, height);
+                  } else {
+                    var height = Math.abs(startY - endY);
+                    ctx.rect(endX, endY, width, height);
+                  }
                 }
-              } else {
-                var width = Math.abs(startX - endX);
-                if (endY > startY) {
-                  var height = Math.abs(endY - startY);
-                  ctx.rect(endX, startY, width, height);
-                } else {
-                  var height = Math.abs(startY - endY);
-                  ctx.rect(endX, endY, width, height);
+                ctx.fill();
+              }
+
+              if (zones.hasOwnProperty(zone)) {
+                var existingArea = imagemap.querySelector(
+                  'area[alt="' + zone + '"]'
+                );
+                if (existingArea) {
+                  // Remove the existing area
+                  existingArea.remove();
                 }
-              }
-              ctx.fill();
-            }
+                // Create <area> elements for each zone
+                var area = document.createElement("area");
+                area.setAttribute("shape", "rect");
+                area.setAttribute(
+                  "coords",
+                  zones[zone].startX +
+                    "," +
+                    zones[zone].startY +
+                    "," +
+                    zones[zone].endX +
+                    "," +
+                    zones[zone].endY
+                );
+                area.setAttribute("href", "#"); // Set the href attribute as needed
+                area.setAttribute("alt", zone);
+                area.setAttribute("data-mapkey", zone);
+                area.setAttribute("id", zone);
 
-            if (zones.hasOwnProperty(zone)) {
-              var existingArea = imagemap.querySelector(
-                'area[alt="' + zone + '"]'
-              );
-              if (existingArea) {
-                // Remove the existing area
-                existingArea.remove();
+                // Append <new area> element to the <map> element
+                imagemap.appendChild(area);
+                zonelist.push(zone);
               }
-              // Create <area> elements for each zone
-              var area = document.createElement("area");
-              area.setAttribute("shape", "rect");
-              area.setAttribute(
-                "coords",
-                zones[zone].startX +
-                  "," +
-                  zones[zone].startY +
-                  "," +
-                  zones[zone].endX +
-                  "," +
-                  zones[zone].endY
-              );
-              area.setAttribute("href", "#"); // Set the href attribute as needed
-              area.setAttribute("alt", zone);
-              area.setAttribute("data-mapkey", zone);
-              area.setAttribute("id", zone);
-
-              // Append <new area> element to the <map> element
-              imagemap.appendChild(area);
             }
           }
+          console.log(zonelist);
           // Update the usemap attribute of the <img> element
           document
             .getElementById("new-floorplan")
@@ -487,54 +506,131 @@
       reinitializeMapster();
     </script>
     <script>
-      function run() {
-        var zonedatas = {
-          Zone1: {
-            sensor1: {
-              sensorID: 1,
-              sensorType: "temperature",
-              graphType: "line",
-              category: "temperature",
-            },
-            sensor2: {
-              sensorID: 2,
-              sensorType: "humidity",
-              graphType: "line",
-              category: "humidity",
-            },
+      var x = 0;
+      var zonedatas = {
+        Zone1: {
+          sensor1: {
+            sensorID: 1,
+            sensorType: "temperature",
+            graphType: "line",
+            category: "temperature",
           },
-          Zone2: {
-            sensor1: {
-              sensorID: 3,
-              sensorType: "temperature",
-              graphType: "line",
-              category: "temperature",
-            },
-            sensor2: {
-              sensorID: 4,
-              sensorType: "humidity",
-              graphType: "line",
-              category: "humidity",
-            },
+          sensor2: {
+            sensorID: 2,
+            sensorType: "humidity",
+            graphType: "line",
+            category: "humidity",
           },
-          Zone3: {
-            sensor1: {
-              sensorID: 5,
-              sensorType: "temperature",
-              graphType: "line",
-              category: "temperature",
-            },
+        },
+        Zone2: {
+          sensor1: {
+            sensorID: 3,
+            sensorType: "temperature",
+            graphType: "line",
+            category: "temperature",
           },
-        };
-        selectedZone = $("input[name='zone']:checked").val();
+          sensor2: {
+            sensorID: 4,
+            sensorType: "humidity",
+            graphType: "line",
+            category: "humidity",
+          },
+        },
+        Zone3: {
+          sensor1: {
+            sensorID: 5,
+            sensorType: "temperature",
+            graphType: "line",
+            category: "temperature",
+          },
+        },
+      };
+      var selectedZone;
+      function run(selected) {
+        selectedZone = zonedatas[selected];
+        console.log(selectedZone);
+        var table = document.getElementById("mytable");
+        var rowCount = table.rows.length;
 
-        for (var zone in zonedatas) {
-          if (zone == selectedZone) {
-            console.log("selected zone is", zone);
-            var datas = zonedatas[zone];
-          }
+        for (var i = rowCount - 1; i > 0; i--) {
+          table.deleteRow(i);
         }
-        console.log(datas);
+
+        for (var sensor in selectedZone) {
+          var row = table.insertRow(-1);
+          var cell1 = row.insertCell(0);
+          var cell2 = row.insertCell(1);
+          var cell3 = row.insertCell(2);
+          var cell4 = row.insertCell(3);
+          cell1.innerHTML = selectedZone[sensor].sensorID;
+          cell2.innerHTML = selectedZone[sensor].sensorType;
+          cell3.innerHTML = selectedZone[sensor].graphType;
+          cell4.innerHTML = selectedZone[sensor].category;
+          console.log(sensor);
+        }
+        var typeDropDown = `
+        <select id="_type">
+          <option value="temperature">temperature</option>
+          <option value="humidity">humidity</option>
+          <option value="pressure">pressure</option>
+          <option value="light">light</option>
+          <option value="motion">motion</option>
+        </select>
+          `;
+
+        var graphTypeDropDown = `
+        <select id="_graph">
+          <option value="line">line</option>
+          <option value="bar">bar</option>
+          <option value="pie">pie</option>
+          <option value="scatter">scatter</option>
+          <option value="area">area</option>
+        </select>
+        `;
+
+        var categoryDropDown = `
+        <select id="_category">
+          <option value="Aircon">Aircon</option>
+          <option value="Lighting">Lighting</option>
+          <option value="others">others</option>
+        </select>
+        `;
+
+        // Now you can use the variable dropdownHTML wherever you need it.
+        var row = table.insertRow(-1);
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+        var cell4 = row.insertCell(3);
+        cell1.innerHTML = '<input type="text" value="" id="_id">';
+        cell2.innerHTML = typeDropDown;
+        cell3.innerHTML = graphTypeDropDown;
+        cell4.innerHTML = categoryDropDown;
+      }
+
+      function updateVar() {
+        id = document.getElementById("_id");
+        type = document.getElementById("_type");
+        graph = document.getElementById("_graph");
+        category = document.getElementById("_category");
+        x = 0;
+        for (datas in selectedZone) {
+          x = x + 1;
+          console.log(x);
+        }
+        _id = id.value;
+        _type = type.value;
+        _graph = graph.value;
+        _category = category.value;
+        selectedZone["sensor" + (x + 1)] = {
+          sensorID: _id,
+          sensorType: _type,
+          graphType: _graph,
+          category: _category,
+        };
+        console.log(selectedZone);
+        console.log(selectedZone);
+        run(selectedZone);
       }
     </script>
   </body>
