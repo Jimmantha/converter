@@ -92,3 +92,7 @@ tr {
 .dropdown-color {
     background: mediumseagreen;
 }
+
+th{
+    background-color: #ffcc00 !important
+}

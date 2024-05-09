@@ -63,25 +63,31 @@
         ></button>
       </div>
       <div class="offcanvas-body">
-        <div>
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link" href="#">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Services</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Contact</a>
-            </li>
+        <ul style="display: flex; flex-direction: column"></ul>
+        <li id="link1"><a href="#" class="p-link">Link 1</a></li>
+        <ul style="display: none" id="link1child">
+          <li>Child 1</li>
+          <li>Child 1</li>
+          <li>Child 1</li>
+        </ul>
+        <li id="link2"><a href="#" class="p-link">Link 2</a></li>
+        <ul style="display: none" id="link2child">
+          <li>Child 2</li>
+          <li>Child 2</li>
+          <li>Child 2</li>
+        </ul>
+        <li id="link3">
+          <a href="#" class="p-link">Link 3</a>
+          <ul style="display: none" id="link3child">
+            <li>Child 3</li>
+            <li>Child 3</li>
+            <li>Child 3</li>
           </ul>
-        </div>
+        </li>
       </div>
     </div>
     <!--end of offcanvas-->
+
     <!--start navbar-->
     <nav class="navbar navbar-expand-lg navbar-light bg-primary">
       <div class="container-fluid">
@@ -278,14 +284,14 @@
           <table class="table m-5" id="mytable">
             <thead>
               <tr>
-                <th style="background-color: #ffcc00 !important">ID</th>
-                <th style="background-color: #ffcc00 !important">Type</th>
-                <th style="background-color: #ffcc00 !important">Graph type</th>
-                <th style="background-color: #ffcc00 !important">Category</th>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Graph type</th>
+                <th>Category</th>
               </tr>
             </thead>
           </table>
-          <button onclick="updateVar()">Table update</button>
+          <button class="ms-5" onclick="updateVar()">Table update</button>
         </div>
       </div>
     </div>
@@ -625,7 +631,10 @@
       };
       var selectedZone;
       function run(selected) {
-        selectedZone = zonedatas[selected];
+        if (selected != null) {
+          selectedZone = zonedatas[selected];
+        }
+
         console.log(selectedZone);
         var table = document.getElementById("mytable");
         var rowCount = table.rows.length;
@@ -697,6 +706,10 @@
           console.log(x);
         }
         _id = id.value;
+        if (_id == "") {
+          alert("Please enter an ID");
+          return;
+        }
         _type = type.value;
         _graph = graph.value;
         _category = category.value;
@@ -706,10 +719,23 @@
           graphType: _graph,
           category: _category,
         };
-        console.log(selectedZone);
-        console.log(selectedZone);
-        run(selectedZone);
+        run(null);
       }
+      $(document).ready(function () {
+        $("#link1").click(function () {
+          $("#link1child").toggle();
+        });
+      });
+      $(document).ready(function () {
+        $("#link2").click(function () {
+          $("#link2child").toggle();
+        });
+      });
+      $(document).ready(function () {
+        $("#link3").click(function () {
+          $("#link3child").toggle();
+        });
+      });
     </script>
   </body>
 </html>
