@@ -129,6 +129,14 @@
     >
       upload floorplan
     </button>
+    <button
+      type="button"
+      class="btn btn-info mt-5"
+      style="margin-left: 450px !important"
+      id="clear"
+    >
+      clear
+    </button>
 
     <!-- Modal -->
     <div
@@ -189,6 +197,7 @@
         </div>
       </div>
     </div>
+    <!--table-->
     <div class="table">
       <div class="row">
         <div class="col-6">
@@ -284,12 +293,13 @@
         </div>
       </div>
     </div>
-
+    <!--end of table-->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"
     ></script>
+    <!--upload modal scripts-->
     <script>
       var zonelist;
       var imageData;
@@ -341,6 +351,8 @@
         vanilla.rotate(90);
       });
       $("#upload").click(function () {
+        delete zones;
+
         console.log("uploading");
         convertTojpg();
       });
@@ -408,6 +420,7 @@
         console.log(newImage);
       }
     </script>
+    <!--zone creation scripts-->
     <script>
       var selectedZone;
       var option;
@@ -560,9 +573,23 @@
           });
         });
       });
+      $("#clear").click(function () {
+        clear();
+      });
+
+      function clear() {
+        zones = { floor: 1 };
+        $("#map").empty();
+        reinitializeMapster();
+        console.log("cleared", zones);
+        floorplanWrap = document.getElementById("shadecanvas");
+        ctx = floorplanWrap.getContext("2d");
+        ctx.clearRect(0, 0, floorplanWrap.width, floorplanWrap.height);
+      }
 
       reinitializeMapster();
     </script>
+    <!--table creation scripts-->
     <script>
       var x = 0;
       var zonedatas = {
@@ -657,7 +684,6 @@
         </select>
         `;
 
-        // Now you can use the variable dropdownHTML wherever you need it.
         var row = table.insertRow(-1);
         var cell1 = row.insertCell(0);
         var cell2 = row.insertCell(1);
