@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>New Floor</title>
+    <%-include("./header") %>
+  </head>
+  <body>
+    <div class="table">
+      <div class="col-6 ms-4 mt-2">
+        <img
+          src="https://placehold.co/600x400"
+          alt=""
+          style="width: 600px; height: 400px"
+          usemap="#test"
+          id="myimage"
+          name="myimage"
+        />
+        <canvas
+          class="ms-4"
+          id="shadecanvas"
+          style="position: relative; width: 600px; height:400px; white; z-index: 0"
+        ></canvas>
+        <map name="test">
+          <area
+            shape="rect"
+            coords="0,0,100,100"
+            href=""
+            alt="Example Tooltip"
+            data-key="rect1"
+          />
+        </map>
+      </div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      function initializeMapster() {
+        $("img").mapster({
+          scaleMap: true,
+          showToolTip: true,
+          mapKey: "data-key",
+          areas: [
+            {
+              key: "rect1",
+              toolTip: "test tooltip",
+            },
+          ],
+        });
+      }
+      initializeMapster();
+      $(document).ready(function () {
+        $("img").mapster("resize", 600, 400, 0);
+      });
+    </script>
+  </body>
+</html>

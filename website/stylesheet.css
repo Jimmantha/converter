@@ -8,6 +8,7 @@
 .mapster_el{
     opacity: 0.7!important;
     position: absolute!important;   
+    
 }
 
 .zone-overlay {
@@ -95,4 +96,15 @@ tr {
 
 th{
     background-color: #ffcc00 !important
+}
+
+.container {
+    height: 500px!important;
+    width: auto!important;
+}
+
+
+.canvas-size{
+    height: 1000px !important;
+    width: auto !important;
 }
