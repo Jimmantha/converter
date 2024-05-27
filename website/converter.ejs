@@ -16,6 +16,14 @@
     >
       upload floorplan
     </button>
+    <input
+    type="button"
+    class="btn btn-info mt-5"
+    style="margin-left: 450px !important"
+    id="zoneLevel"
+  >
+    
+  </input>
     <button
       type="button"
       class="btn btn-info mt-5"
@@ -190,6 +198,8 @@
     <script>
       var zonelist;
       var imageData;
+      var zoneLevel = document.getElementById("zoneLevel");
+      var floor = zoneLevel.value;
       function reinitializeMapster() {
         $("img").mapster(
           (options = {
@@ -448,7 +458,7 @@
       $(document).ready(function () {
         $("#submit").click(function (event) {
           event.preventDefault(); // Prevent the default form submission
-          floorDetails.floorLevel = 1;
+          floorDetails.floorLevel = 2;
           floorDetails.buildingName = "building-1";
           var formData = floorDetails;
 

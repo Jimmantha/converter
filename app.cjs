@@ -6,7 +6,7 @@ const bodyparser = require('body-parser')
 const path = require('path')
 const fetch = require('fetch')
 const app = express()
-const port = 8000
+const port = 8001
 
 const Schema = mongoose.Schema;
 
@@ -52,7 +52,7 @@ const floorplan = new Schema({
 
 const floorDetails = mongoose.model('floors', floorplan);
 
-mongoose.connect('mongodb://localhost:27017/').then(async () => {
+mongoose.connect('mongodb+srv://pleasepeople123:VfLWNiTsHAUOZjkY@cluster0.75o7lsi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0').then(async () => {
     console.log('connected to db')
 })
 
